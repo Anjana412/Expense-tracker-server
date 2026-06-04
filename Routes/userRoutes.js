@@ -9,7 +9,7 @@ userrouter.post('/register',register);
 userrouter.post('/login',login);
 userrouter.put('/makeadmin/:id',makeAdmin);
 userrouter.delete('/removeadmin/:id',removeAdmin);
-userrouter.get('/allusers',getAllUsers);
+userrouter. get('/allusers',getAllUsers);
 userrouter.put("/setbudget",authMiddleware,  updateBudget);
 userrouter.get("/getbudget",authMiddleware,  getBudget);
 

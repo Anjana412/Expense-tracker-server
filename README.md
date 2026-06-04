@@ -1,117 +1,136 @@
-# Expense Tracker — Backend
+# Expense Tracker — Backend (MERN Stack)
 
-REST API server for the Expense Tracker application. Handles authentication, expense management, team management, and analytics.
+A RESTful API built with Node.js, Express, and MongoDB that powers the Expense Tracker application. It handles user authentication, role-based authorization, expense management, budget tracking, team collaboration, and analytics for personal and organizational expense monitoring.
+
+## Live Demo
+
+**Backend:** https://expense-tracker-server-wc9u.onrender.com
+**Frontend:** https://expense-tracker-client-jet.vercel.app
 
 ## Features
 
-- JWT-based authentication
-- User roles — User, Admin, Super Admin
-- Expense CRUD operations
-- Team creation and management
-- Budget tracking
-- Global and team-level analytics
-- CSV export support
+### User Authentication
+- Secure Signup with Name, Email, and Password
+- Encrypted Passwords using bcrypt
+- JWT Authorization for secure login
+- Protected Routes with role-based middleware
 
-## Tech Stack
+### Role-Based Access
+- **User:** Personal expense and budget management
+- **Admin:** Team expense tracking and reports
+- **Super Admin:** Global analytics across all users
 
+### Expense Management
+- Full CRUD Operations on expenses
+- Category-wise tracking
+- Monthly trend analytics
+- Team and global expense views
+
+### Team Management
+- Create and manage teams
+- Add and remove team members
+- Team-level expense tracking and reports
+
+## Technologies Used
+
+### Backend
 - Node.js
 - Express.js
-- MongoDB Atlas (Mongoose)
-- JSON Web Tokens (JWT)
+- MongoDB Atlas
+- Mongoose
+- JWT
+- bcrypt
+- dotenv
+- CORS
 
-## Getting Started
+## Setup Instructions
 
 ### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
+- MongoDB Atlas account
 
-- Node.js v18+
-- MongoDB Atlas account and cluster
-
-### Installation
+### Backend Setup
 
 ```bash
 git clone https://github.com/Anjana412/Expense-tracker-server.git
 cd Expense-tracker-server
 npm install
-```
-
-### Environment Variables
-
-Create a `.env` file in the root:
-
-```
-PORT=4000
-MONGO_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster.mongodb.net/YOUR_DB_NAME
-JWT_SECRET=your_jwt_secret_key_here
-CLIENT_URL=http://localhost:5173
-```
-
-### Run Locally
-
-```bash
-node index.js
-```
-
-Or with nodemon:
-
-```bash
-npx nodemon index.js
+npm run dev
 ```
 
 Server runs at `http://localhost:4000`
 
-## Deployment
-
-Deployed on **Render**. Set the following environment variables in your Render service settings:
-
-```
-PORT=4000
-MONGO_URI=your_mongodb_atlas_connection_string
-JWT_SECRET=your_jwt_secret_key_here
-CLIENT_URL=https://your-vercel-app.vercel.app
-```
 
 ## API Routes
 
-### Auth
-| Method | Route | Description |
-|--------|-------|-------------|
-| POST | /user/register | Register a new user |
-| POST | /user/login | Login and get JWT token |
-
-### Expenses
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | /expense/getexpense | Get user's expenses |
-| POST | /expense/addexpense | Add new expense |
-| PUT | /expense/updateexpense/:id | Update expense |
-| DELETE | /expense/delete/:id | Delete expense |
-| GET | /expense/team/expenses | Get team expenses |
-| GET | /expense/global/expenses | Get all expenses (superadmin) |
-| GET | /expense/summary | Get expense summary |
-| GET | /expense/monthly-trend | Get monthly trend |
+### Authentication
+```
+POST /user/register
+POST /user/login
+```
 
 ### Users
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | /user/allusers | Get all users (admin) |
-| PUT | /user/makeadmin/:id | Promote user to admin |
-| DELETE | /user/removeadmin/:id | Demote admin to user |
-| PUT | /user/setbudget | Set monthly budget |
-| GET | /user/getbudget | Get monthly budget |
+```
+GET    /user/allusers
+PUT    /user/makeadmin/:id
+DELETE /user/removeadmin/:id
+PUT    /user/setbudget
+GET    /user/getbudget
+```
 
 ### Teams
-| Method | Route | Description |
-|--------|-------|-------------|
-| POST | /user/team/create | Create a team |
-| GET | /user/team/members | Get team members |
-| DELETE | /user/team/member/:id | Remove team member |
+```
+POST   /user/team/create
+GET    /user/team/members
+DELETE /user/team/member/:userId
+```
 
-## Folder Structure
+### Expenses
+```
+POST   /expense/addexpense
+GET    /expense/getexpense
+GET    /expense/expense/:id
+PUT    /expense/updateexpense/:id
+DELETE /expense/delete/:id
+GET    /expense/summary
+GET    /expense/monthly-trend
+GET    /expense/team/expenses
+GET    /expense/global/expenses
+PATCH  /expense/expense/:id/status
+```
+
+## Project Structure
 
 ```
-├── index.js          # Entry point
-├── models/           # Mongoose models
-├── routes/           # Express route handlers
-├── middleware/        # Auth middleware
-└── controllers/      # Route logic
+server/
+├── controller/
+│   ├── expensecontroller.js
+│   └── usercontroller.js
+├── middleware/
+│   └── auth.js
+├── models/
+│   ├── expense.js
+│   └── user.js
+├── Routes/
+│   ├── expenseRoutes.js
+│   └── userRoutes.js
+├── utils/
+│   └── db.js
+├── index.js
+└── package.json
 ```
+
+## Deployment
+
+- **Backend:** Render
+- **Database:** MongoDB Atlas
+
+## Author
+
+**Anjana T**
+
+Email: anjanat0001@gmail.com
+
+GitHub: https://github.com/Anjana412
