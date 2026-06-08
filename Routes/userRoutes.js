@@ -10,22 +10,13 @@ userrouter.post('/login',login);
 userrouter. get('/allusers',getAllUsers);
 userrouter.put("/setbudget",verifyToken,  updateBudget);
 userrouter.get("/getbudget",verifyToken,  getBudget);
-
-userrouter.post("/team", verifyToken, createTeam);
-
-userrouter.get("/teams", verifyToken, getTeams);
-
-userrouter.get("/teammembers/:teamId", verifyToken, getTeamMembers);
-
-userrouter.post("/teammember/:teamId", verifyToken, addUserToTeam);
-
-userrouter.delete("/teammember/:teamId/:userId", verifyToken, removeUserFromTeam);
-
-userrouter.delete("/team/:teamId", verifyToken, deleteTeam);
-// get expenses for a specific team
-
-userrouter.post('/admin/create', verifyToken, requireRole('superadmin'), createAdmin);
-userrouter.get('/admins', verifyToken, requireRole('superadmin'), getAdmins);
-userrouter.delete('/admin/:id', verifyToken, requireRole('superadmin'), deleteAdmin);
-
+userrouter.post("/createteam", verifyToken, createTeam);
+userrouter.get("/viewteams", verifyToken, getTeams);
+userrouter.get("/viewteammembers/:teamId", verifyToken, getTeamMembers);
+userrouter.post("/addteammember/:teamId", verifyToken, addUserToTeam);
+userrouter.delete("/removeteammember/:teamId/:userId",verifyToken,removeUserFromTeam);
+userrouter.delete("/deleteteam/:teamId", verifyToken, deleteTeam);
+userrouter.post("/admin/create",verifyToken,requireRole("superadmin"),createAdmin);
+userrouter.get("/viewadmins",verifyToken,requireRole("superadmin"),getAdmins );
+userrouter.delete("/admin/delete/:id",verifyToken,requireRole("superadmin"),deleteAdmin );
 export default userrouter; 

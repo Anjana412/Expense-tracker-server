@@ -237,11 +237,9 @@ export const getTeamExpenses = async (req, res) => {
   try {
     const { teamId } = req.params;
     
-    // find the team and get its members
     const team = await Team.findOne({ _id: teamId, adminId: req.user.userId });
     if (!team) return res.status(404).json({ message: "Team not found" });
 
-    // get expenses of all members in that team
     const expenses = await Expense.find({ userId: { $in: team.members } })
       .populate("userId", "name email role")
       .sort({ date: -1 });
