@@ -1,5 +1,5 @@
 import express from 'express'
-import { createAdmin, createTeam, deleteAdmin, getAdmins, getAllUsers, getBudget, getTeamMembers, login, register, removeUserFromTeam, updateBudget } from '../controller/usercontroller.js';
+import { addUserToTeam, createAdmin, createTeam, deleteAdmin, deleteTeam, getAdmins, getAllUsers, getBudget, getTeamExpenses, getTeamMembers, getTeams, login, register, removeUserFromTeam, updateBudget } from '../controller/usercontroller.js';
 
 import verifyToken, { requireRole } from '../middleware/auth.js';
 
@@ -11,9 +11,19 @@ userrouter. get('/allusers',getAllUsers);
 userrouter.put("/setbudget",verifyToken,  updateBudget);
 userrouter.get("/getbudget",verifyToken,  getBudget);
 
-userrouter.post("/team/create", verifyToken, createTeam);
-userrouter.get("/team/members", verifyToken, getTeamMembers);
-userrouter.delete("/team/member/:userId", verifyToken, removeUserFromTeam);
+userrouter.post("/team", verifyToken, createTeam);
+
+userrouter.get("/teams", verifyToken, getTeams);
+
+userrouter.get("/teammembers/:teamId", verifyToken, getTeamMembers);
+
+userrouter.post("/teammember/:teamId", verifyToken, addUserToTeam);
+
+userrouter.delete("/teammember/:teamId/:userId", verifyToken, removeUserFromTeam);
+
+userrouter.delete("/team/:teamId", verifyToken, deleteTeam);
+// get expenses for a specific team
+
 userrouter.post('/admin/create', verifyToken, requireRole('superadmin'), createAdmin);
 userrouter.get('/admins', verifyToken, requireRole('superadmin'), getAdmins);
 userrouter.delete('/admin/:id', verifyToken, requireRole('superadmin'), deleteAdmin);

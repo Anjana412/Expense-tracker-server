@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import Team from "../models/team.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
@@ -135,15 +136,29 @@ export const getBudget = async (req, res) => {
 
 export const createTeam = async (req, res) => {
   try {
-    const adminId = new mongoose.Types.ObjectId(req.user.userId);
-    const { userIds } = req.body;
+    const adminId = req.user.userId;
+    const { name, userIds } = req.body;
 
-    await User.updateMany(
-      { _id: { $in: userIds } },
-      { adminId }
-    );
+    if (!name?.trim()) {
+      return res.status(400).json({ message: "Team name is required" });
+    }
+    if (!userIds || userIds.length === 0) {
+      return res.status(400).json({ message: "Select at least one member" });
+    }
 
-    res.json({ message: "Team created successfully" });
+    const team = await Team.create({ name: name.trim(), adminId, members: userIds });
+    res.status(201).json({ message: "Team created successfully", team });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getTeams = async (req, res) => {
+  try {
+    const teams = await Team.find({ adminId: req.user.userId })
+      .populate("members", "-password")
+      .sort({ createdAt: -1 });
+    res.json(teams);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -151,24 +166,50 @@ export const createTeam = async (req, res) => {
 
 export const getTeamMembers = async (req, res) => {
   try {
-    const adminId = new mongoose.Types.ObjectId(req.user.userId);
+    const { teamId } = req.params;
+    const team = await Team.findOne({
+      _id: teamId,
+      adminId: req.user.userId,
+    }).populate("members", "-password");
 
-    const users = await User.find({ adminId }).select("-password");
+    if (!team) return res.status(404).json({ message: "Team not found" });
 
-    res.json(users);
+    res.json(team.members);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+export const addUserToTeam = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { userId } = req.body;
+
+    const team = await Team.findOneAndUpdate(
+      { _id: teamId, adminId: req.user.userId },
+      { $addToSet: { members: userId } },
+      { new: true }
+    ).populate("members", "-password");
+
+    if (!team) return res.status(404).json({ message: "Team not found" });
+
+    res.json({ message: "User added to team", team });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 export const removeUserFromTeam = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { teamId, userId } = req.params;
 
-    await User.findByIdAndUpdate(userId, {
-      adminId: null,
-    });
+    const team = await Team.findOneAndUpdate(
+      { _id: teamId, adminId: req.user.userId },
+      { $pull: { members: userId } },
+      { new: true }
+    );
+
+    if (!team) return res.status(404).json({ message: "Team not found" });
 
     res.json({ message: "User removed from team" });
   } catch (err) {
@@ -176,7 +217,40 @@ export const removeUserFromTeam = async (req, res) => {
   }
 };
 
+export const deleteTeam = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const team = await Team.findOneAndDelete({
+      _id: teamId,
+      adminId: req.user.userId,
+    });
 
+    if (!team) return res.status(404).json({ message: "Team not found" });
+
+    res.json({ message: "Team deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getTeamExpenses = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    
+    // find the team and get its members
+    const team = await Team.findOne({ _id: teamId, adminId: req.user.userId });
+    if (!team) return res.status(404).json({ message: "Team not found" });
+
+    // get expenses of all members in that team
+    const expenses = await Expense.find({ userId: { $in: team.members } })
+      .populate("userId", "name email role")
+      .sort({ date: -1 });
+
+    res.json(expenses);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 
 export const createAdmin = async (req, res) => {
@@ -196,7 +270,7 @@ export const createAdmin = async (req, res) => {
         }
  
         const hashedPassword = await bcrypt.hash(password, 10);
-        // role is hardcoded "admin" — no way to create superadmin from UI
+
         const newAdmin = new User({ name, email, password: hashedPassword, role: "admin" });
         const savedAdmin = await newAdmin.save();
  
