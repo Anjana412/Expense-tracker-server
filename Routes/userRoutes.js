@@ -1,21 +1,21 @@
 import express from 'express'
-import { createTeam, getAllUsers, getBudget, getTeamMembers, login, makeAdmin, register, removeAdmin, removeUserFromTeam, updateBudget } from '../controller/usercontroller.js';
+import { createAdmin, createTeam, deleteAdmin, getAdmins, getAllUsers, getBudget, getTeamMembers, login, register, removeUserFromTeam, updateBudget } from '../controller/usercontroller.js';
 
-import authMiddleware from "../middleware/auth.js";
+import verifyToken, { requireRole } from '../middleware/auth.js';
 
 const userrouter = express.Router();
 
 userrouter.post('/register',register);
 userrouter.post('/login',login);
-userrouter.put('/makeadmin/:id',makeAdmin);
-userrouter.delete('/removeadmin/:id',removeAdmin);
 userrouter. get('/allusers',getAllUsers);
-userrouter.put("/setbudget",authMiddleware,  updateBudget);
-userrouter.get("/getbudget",authMiddleware,  getBudget);
+userrouter.put("/setbudget",verifyToken,  updateBudget);
+userrouter.get("/getbudget",verifyToken,  getBudget);
 
-userrouter.post("/team/create", authMiddleware, createTeam);
-userrouter.get("/team/members", authMiddleware, getTeamMembers);
-userrouter.delete("/team/member/:userId", authMiddleware, removeUserFromTeam);
-
+userrouter.post("/team/create", verifyToken, createTeam);
+userrouter.get("/team/members", verifyToken, getTeamMembers);
+userrouter.delete("/team/member/:userId", verifyToken, removeUserFromTeam);
+userrouter.post('/admin/create', verifyToken, requireRole('superadmin'), createAdmin);
+userrouter.get('/admins', verifyToken, requireRole('superadmin'), getAdmins);
+userrouter.delete('/admin/:id', verifyToken, requireRole('superadmin'), deleteAdmin);
 
 export default userrouter; 

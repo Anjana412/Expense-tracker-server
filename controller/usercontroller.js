@@ -85,26 +85,6 @@ export const login = async(req,res)=>{
 
 
 
-export const makeAdmin = async (req, res) => {
-    try {
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
-            { role: "admin" },
-            { new: true }
-        );
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        res.status(200).json({
-            message: "User promoted to admin",
-            user
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 export const getAllUsers = async (req,res)=>{
     const users = await User.find().select("-password");
@@ -112,18 +92,7 @@ export const getAllUsers = async (req,res)=>{
     res.status(200).json(users);
 }
 
-export const removeAdmin = async(req,res)=>{
-    const user = await User.findByIdAndUpdate(
-        req.params.id,
-        {role:"user"},
-        {new:true}
-    );
 
-    res.status(200).json({
-        message:"Admin removed",
-        user
-    });
-}
 
 
 
@@ -205,4 +174,69 @@ export const removeUserFromTeam = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+};
+
+
+
+
+export const createAdmin = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+ 
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Password must be at least 6 characters" });
+        }
+ 
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
+ 
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // role is hardcoded "admin" — no way to create superadmin from UI
+        const newAdmin = new User({ name, email, password: hashedPassword, role: "admin" });
+        const savedAdmin = await newAdmin.save();
+ 
+        return res.status(201).json({
+            message: "Admin account created successfully",
+            user: { _id: savedAdmin._id, name: savedAdmin.name, email: savedAdmin.email, role: savedAdmin.role }
+        });
+    } catch (e) {
+        console.error("createAdmin error:", e);
+        return res.status(500).json({ message: "Failed to create admin" });
+    }
+};
+ 
+export const getAdmins = async (req, res) => {
+    try {
+        const admins = await User.find({ role: "admin" }).select("-password");
+        res.status(200).json(admins);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+ 
+export const deleteAdmin = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+ 
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (user.role === "superadmin") {
+            return res.status(403).json({ message: "Cannot delete a Super Admin account" });
+        }
+        if (user.role !== "admin") {
+            return res.status(400).json({ message: "User is not an admin" });
+        }
+ 
+        await User.findByIdAndDelete(req.params.id);
+ 
+        res.status(200).json({ message: "Admin account deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
