@@ -23,7 +23,7 @@ let userSchema = new mongoose.Schema(
             enum:['user','admin','superadmin'],
             default:'user',
         },
-        adminId: {
+        adminId:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             default: null,
@@ -33,7 +33,12 @@ let userSchema = new mongoose.Schema(
             default: 0,
             },
 
-    }
+        
+
+    },
+
+    {timestamps:true,}
+
 )
 
 const User = mongoose.model("User",userSchema);
