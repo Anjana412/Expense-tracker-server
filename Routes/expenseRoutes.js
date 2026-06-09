@@ -15,7 +15,6 @@ expenserouter.get("/expense/:id",verifyToken,getSingleExpense);
 expenserouter.get("/team/expenses", verifyToken, getTeamExpenses);
 expenserouter.get("/global/expenses", verifyToken, getAllExpenses);
 expenserouter.get("/team/:teamId", verifyToken, getTeamExpenses);
-
 expenserouter.patch("/expense/:id/status", authMiddleware, updateExpenseStatus);
 
 export default expenserouter;
