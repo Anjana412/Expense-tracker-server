@@ -233,6 +233,8 @@ export const deleteTeam = async (req, res) => {
   }
 };
 
+
+
 export const getTeamExpenses = async (req, res) => {
   try {
     const { teamId } = req.params;
@@ -250,6 +252,16 @@ export const getTeamExpenses = async (req, res) => {
   }
 };
 
+export const getAllTeams = async (req, res) => {
+  try {
+    const teams = await Team.find()
+      .populate("members", "_id name email role")
+      .sort({ createdAt: -1 });
+    res.json(teams);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 export const createAdmin = async (req, res) => {
     try {
