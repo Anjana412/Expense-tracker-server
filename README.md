@@ -32,6 +32,10 @@ A RESTful API built with Node.js, Express, and MongoDB that powers the Expense T
 - Add and remove team members
 - Team-level expense tracking and reports
 
+### Admin Management
+- Super Admin can create and delete Admin accounts
+- View all admins in the system
+
 ## Technologies Used
 
 ### Backend
@@ -63,7 +67,6 @@ npm run dev
 
 Server runs at `http://localhost:4000`
 
-
 ## API Routes
 
 ### Authentication
@@ -74,18 +77,27 @@ POST /user/login
 
 ### Users
 ```
-GET    /user/allusers
-PUT    /user/makeadmin/:id
-DELETE /user/removeadmin/:id
-PUT    /user/setbudget
-GET    /user/getbudget
+GET  /user/allusers
+PUT  /user/setbudget
+GET  /user/getbudget
 ```
 
 ### Teams
 ```
-POST   /user/team/create
-GET    /user/team/members
-DELETE /user/team/member/:userId
+POST   /user/createteam
+GET    /user/viewteams
+GET    /user/viewteammembers/:teamId
+POST   /user/addteammember/:teamId
+DELETE /user/removeteammember/:teamId/:userId
+DELETE /user/deleteteam/:teamId
+GET    /user/allteams(Super Admin only)
+```
+
+### Admin Management (Super Admin only)
+```
+POST   /user/admin/create
+GET    /user/viewadmins
+DELETE /user/admin/delete/:id
 ```
 
 ### Expenses
@@ -98,6 +110,7 @@ DELETE /expense/delete/:id
 GET    /expense/summary
 GET    /expense/monthly-trend
 GET    /expense/team/expenses
+GET    /expense/team/:teamId
 GET    /expense/global/expenses
 PATCH  /expense/expense/:id/status
 ```
